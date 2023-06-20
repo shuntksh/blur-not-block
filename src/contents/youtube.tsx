@@ -1,0 +1,273 @@
+import cssText from "data-text:~styles.css";
+import type {
+  PlasmoCSConfig,
+  PlasmoCreateShadowRoot,
+  PlasmoGetStyle,
+} from "plasmo";
+import { StrictMode } from "react";
+import { useEffect, useRef, useState } from "react";
+
+export const config: PlasmoCSConfig = {
+  matches: ["https://www.youtube.com/*"],
+  all_frames: true,
+};
+export const createShadowRoot: PlasmoCreateShadowRoot = (shadowHost) =>
+  shadowHost.attachShadow({ mode: "open" });
+
+export const getStyle: PlasmoGetStyle = () => {
+  const style = document.createElement("style");
+  style.textContent = cssText;
+  return style;
+};
+
+let shouldGrayScale = true;
+
+// Function to set filter to grayscale
+function setGrayscale(images) {
+  for (var i = 0; i < images.length; i++) {
+    images[i].style.filter = "grayscale(100%) blur(3px)";
+  }
+}
+
+const nodeIsImageElement = (node: Node): node is HTMLImageElement => {
+  return node.nodeName === "IMG";
+};
+
+const nodeIsDOMElement = (node: Node): node is HTMLElement => {
+  return node instanceof HTMLElement;
+};
+
+const observer = new MutationObserver((mutations) => {
+  if (!shouldGrayScale) {
+    return;
+  }
+  mutations.forEach((mutation) => {
+    if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+      for (let i = 0; i < mutation.addedNodes.length; i++) {
+        const node = mutation.addedNodes[i];
+        if (nodeIsImageElement(node)) {
+          // If new img element is added, set it to grayscale
+          node.style.filter = "grayscale(100%) blur(3px)";
+        } else if (
+          nodeIsDOMElement(node) &&
+          node.getElementsByTagName !== undefined
+        ) {
+          // If a new node is added that contains img elements, set them to grayscale
+          setGrayscale(node.getElementsByTagName("img"));
+        }
+      }
+    }
+  });
+});
+
+observer.observe(document.body, {
+  childList: true,
+  subtree: true,
+});
+
+// Set filte
+const App = () => {
+  const [isOpen, setOpen] = useState(true);
+  const [timer, setTimer] = useState(-1); // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+  const [videoPage, setVideoPage] = useState(false);
+  const modalRef = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    console.info("Content Script Loaded");
+    const ytNavigationEventHandler = () => {
+      console.info("yt-navigate-finish", window.location.href);
+      setTimer(-1);
+      setGrayscale(document.getElementsByTagName("img"));
+
+      // If the current page is a video page, pause all videos
+      if (
+        window.location.href.startsWith("https://www.youtube.com/watch") ||
+        window.location.href.startsWith("https://www.youtube.com/shorts/")
+      ) {
+        // Remove the secondary column
+        const secondary = document.querySelector("#secondary");
+        document.body.style.overflow = "hidden";
+        if (secondary) {
+          for (const child of secondary.children) {
+            child.remove();
+          }
+        }
+
+        for (const video of document.querySelectorAll("video")) {
+          video.pause();
+          video.muted = true;
+          video.style.filter = "grayscale(100%) blur(25px)";
+        }
+
+        setVideoPage(true);
+      } else {
+        setVideoPage(false);
+      }
+    };
+
+    ytNavigationEventHandler();
+
+    const timer = window.setTimeout(() => {
+      ytNavigationEventHandler();
+    }, 2000);
+
+    modalRef.current?.showModal();
+
+    window.addEventListener("yt-navigate-finish", ytNavigationEventHandler);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener(
+        "yt-navigate-finish",
+        ytNavigationEventHandler,
+      );
+    };
+  }, []);
+
+  useEffect(() => {
+    for (const video of document.querySelectorAll("video")) {
+      video.pause();
+    }
+  }, [videoPage]);
+
+  useEffect(() => {
+    if (timer === 0) {
+      setOpen(false);
+      setTimer(-1);
+    } else if (timer > 0) {
+      const token = window.setTimeout(() => {
+        setTimer((_timer) => _timer - 1);
+      }, 1000);
+
+      return () => clearTimeout(token);
+    }
+  }, [timer]);
+
+  if (!videoPage || !isOpen) {
+    document.body.style.overflow = "auto";
+    for (const video of document.querySelectorAll("video")) {
+      video.style.filter = "none";
+    }
+    return null;
+  }
+
+  return (
+    <StrictMode>
+      <div className="w-[100vw] h-[100vh] flex relative items-center justify-center bg-stone-800/90">
+        <div className="divide-y w-[500px] h-[400px] bg-white shadow-lg rounded-lg ">
+          {timer === -1 ? (
+            <div className="w-full h-full relative flex overflow-hidden items-center justify-center flex-col">
+              <div className="flex-1 flex items-center flex-col justify-center">
+                <div className="w-[100px] h-[100px] rounded-xl border-4 border-red-700 bg-red-600 shadow-lg mb-6 flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    className="w-24 h-24 text-white">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.249-8.25-3.286zm0 13.036h.008v.008H12v-.008z"
+                    />
+                  </svg>
+                </div>
+                <div className="mt-3 text-center sm:mt-5">
+                  <h3 className="text-3xl font-semibold leading-6 text-gray-600">
+                    Read this before you watch this video
+                  </h3>
+                  <div className="mt-10">
+                    <p className="px-12">
+                      <span
+                        className="text-4xl leading-[4rem] text-stone-900 mt-6 py-0.5 px-1 bg-transparent bg-gradient-to-br from-yellow-400 via-yellow-300 to-yellow-100 decoration-clone"
+                        style={{
+                          margin: "0 -0.4em",
+                          padding: "0.1em 0.4em",
+                          borderRadius: "0.8em 0.3em",
+                        }}>
+                        I am not sure if I really want to watch this video right
+                        now.
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div className="flex gap-2 mb-16 flex=0">
+                  <button
+                    className="btn btn-lg  border-4 text-green-800 bg-green-400 border-green-600 hover:bg-green-400/75 hover:border-green-600"
+                    onClick={() => {
+                      window.location.href = "https://www.youtube.com/";
+                    }}>
+                    Let's Go Back
+                  </button>
+                  <button className="btn btn-lg border-4 text-stone-500 border-stone-500/50 hover:bg-gray-300/50 hover:border-stone-500/50">
+                    I might want to watch it later
+                  </button>
+                </div>
+              </div>
+              <button
+                className="btn btn-circle btn-outline absolute top-2 right-2"
+                onClick={() => setTimer(10)}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+          ) : (
+            <div className="w-full h-full relative flex overflow-hidden items-center justify-center flex-col bg-red-500/25">
+              <div className="flex-1 flex items-center flex-col justify-center">
+                <div className="w-[100px] h-[100px] rounded-xl border-4  border-red-700 bg-red-600 shadow-lg mb-6 flex items-center justify-center">
+                  <span className="font-extrabold text-6xl text-white">
+                    {timer}
+                  </span>
+                </div>
+                <div className="mt-3 text-center sm:mt-5">
+                  <h3 className="text-3xl font-semibold leading-6 text-gray-600">
+                    Do I really have to watch this video?
+                  </h3>
+                  <div className="mt-10">
+                    <p className="px-12">
+                      <span
+                        className="text-4xl leading-[4rem] text-stone-900 mt-6 py-0.5 px-1 bg-transparent bg-gradient-to-br from-yellow-400 via-yellow-300 to-yellow-100 decoration-clone"
+                        style={{
+                          margin: "0 -0.4em",
+                          padding: "0.1em 0.4em",
+                          borderRadius: "0.8em 0.3em",
+                        }}>
+                        I have 10 seconds to decide if this video really worth
+                        my time right now.
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div className="flex gap-2 mb-16 flex=0">
+                  <button
+                    className="btn btn-lg  border-4 text-green-800 bg-green-400 border-green-600 hover:bg-green-400/75 hover:border-green-600"
+                    onClick={() => setTimer(-1)}>
+                    Never mind. I changed my mind. I want to watch this video
+                    later.
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </StrictMode>
+  );
+};
+
+export default App;

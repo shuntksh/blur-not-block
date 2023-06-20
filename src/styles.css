@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  :root {
+    --window-height: 450px;
+    --window-width: 300px;
+    --border-width: 1px;
+    --border-subtle: var(--border-width) solid rgb(226, 226, 226);
+    --header-height: 72px;
+    --content-header-height: 50px;
+    --footer-height: 20px;
+    --sidebar-width: 180px;
+  }
+
+  body {
+    @apply scroll-smooth;
+    height: var(--window-height);
+    width: var(--window-width);
+    min-height: var(--window-height);
+    min-width: var(--window-width);
+    overflow: hidden;
+  }
+}
