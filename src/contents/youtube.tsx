@@ -23,23 +23,24 @@ export const getStyle: PlasmoGetStyle = () => {
   return style;
 };
 
+const TIMEOUT = 1;
 const App = () => {
   const [isOpen, setOpen] = useState(true);
   const [timer, setTimer] = useState(-1); // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
   const [videoPage, setVideoPage] = useState(false);
   const modalRef = useRef<HTMLDialogElement>(null);
   const setGrayscale = useApplyImageFilter();
-  const setAutoPause = useAutoPause(false);
+  const setAutoPause = useAutoPause(true);
 
   useEffect(() => {
     console.info("Content Script Loaded");
     const ytNavigationEventHandler = () => {
       console.info("yt-navigate-finish", window.location.href);
       setTimer(-1);
+      setAutoPause(true);
 
       if (window.location.href === "https://www.youtube.com") {
         setVideoPage(false);
-        setAutoPause(false);
         setGrayscale(true);
       }
 
@@ -49,7 +50,6 @@ const App = () => {
         window.location.href.startsWith("https://www.youtube.com/shorts/")
       ) {
         setGrayscale(true);
-        setAutoPause(true);
         // Remove the secondary column
         const secondary = document.querySelector("#secondary");
         document.body.style.overflow = "hidden";
@@ -87,10 +87,11 @@ const App = () => {
     if (timer === 0) {
       setOpen(false);
       setTimer(-1);
+      setAutoPause(false);
     } else if (timer > 0) {
       const token = window.setTimeout(() => {
         setTimer((_timer) => _timer - 1);
-      }, 1000);
+      }, 1000 + (TIMEOUT - timer) * 200);
 
       return () => clearTimeout(token);
     }
@@ -144,7 +145,7 @@ const App = () => {
                   </div>
                 </div>
               </div>
-              <div>
+              <div className="flex-grow-0">
                 <div className="flex gap-2 mb-16 flex=0">
                   <button
                     className="btn btn-lg  border-4 text-green-800 bg-green-400 border-green-600 hover:bg-green-400/75 hover:border-green-600"
@@ -158,9 +159,17 @@ const App = () => {
                   </button>
                 </div>
               </div>
+              <div className="pb-1 flex-grow-0 flex flex-row items-end">
+                <button onClick={() => setTimer(TIMEOUT)}>
+                  I really need to watch this video.
+                </button>
+              </div>
+
               <button
                 className="btn btn-circle btn-outline absolute top-2 right-2"
-                onClick={() => setTimer(10)}>
+                onClick={() => {
+                  window.location.href = "https://www.youtube.com/";
+                }}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-6 w-6"

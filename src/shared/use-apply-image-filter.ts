@@ -14,8 +14,8 @@ function applyFilter(
 
 // Mutation observer to detect changes in the DOM and set new images to grayscale and blur
 
-export const useApplyImageFilter = () => {
-  const [shouldApplyFilter, setShouldGrayscale] = useState(true);
+export const useApplyImageFilter = (initialValue = true) => {
+  const [shouldApplyFilter, setShouldGrayscale] = useState(initialValue);
   const hasRun = useRef(false);
 
   const observer = new MutationObserver((mutations) => {

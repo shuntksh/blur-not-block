@@ -2,9 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 
 export const useAutoPause = (initialValue: boolean = true) => {
   const [autoPause, setAutoPause] = useState(initialValue);
+  console.log("YYY", autoPause);
 
   const autoPauseEventHandler = useCallback(
     (event: Event) => {
+      console.log("HHH", autoPause);
+
       if (autoPause) {
         if (event.currentTarget instanceof HTMLVideoElement) {
           event.currentTarget.pause();
@@ -16,23 +19,24 @@ export const useAutoPause = (initialValue: boolean = true) => {
 
   useEffect(() => {
     for (const video of document.body.getElementsByTagName("video")) {
-      video.addEventListener("play", autoPauseEventHandler);
-    }
-
-    return () => {
-      for (const video of document.body.getElementsByTagName("video")) {
+      video.style.filter = autoPause ? "grayscale(100%) blue(5px)" : "none";
+      if (autoPause) {
+        video.pause();
+      } else {
         video.removeEventListener("play", autoPauseEventHandler);
       }
-    };
-  }, []);
+    }
+  }, [autoPause]);
 
   useEffect(() => {
     for (const video of document.body.getElementsByTagName("video")) {
-      video.style.filter = autoPause ? "grayscale(100%) blur(5px)" : "none";
-    }
-
-    if (!autoPause) {
-      return;
+      video.addEventListener("play", autoPauseEventHandler);
+      video.style.filter = initialValue ? "grayscale(100%) blue(5px)" : "none";
+      if (initialValue) {
+        video.pause();
+        video.autoplay = false;
+        video.muted = true;
+      }
     }
 
     const observer = new MutationObserver((mutations) => {
@@ -59,8 +63,13 @@ export const useAutoPause = (initialValue: boolean = true) => {
 
     observer.observe(document.body, observerConfig);
 
-    return () => observer.disconnect();
-  }, [autoPause]);
+    return () => {
+      observer.disconnect();
+      for (const video of document.body.getElementsByTagName("video")) {
+        video.removeEventListener("play", autoPauseEventHandler);
+      }
+    };
+  }, []);
 
   return setAutoPause;
 };
