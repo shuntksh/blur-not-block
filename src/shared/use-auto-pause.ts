@@ -1,41 +1,24 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export const useAutoPause = (initialValue: boolean = true) => {
   const [autoPause, setAutoPause] = useState(initialValue);
-  console.log("YYY", autoPause);
 
-  const autoPauseEventHandler = useCallback(
-    (event: Event) => {
-      console.log("HHH", autoPause);
-
+  useEffect(() => {
+    const autoPauseEventHandler = (event: Event) => {
       if (autoPause) {
         if (event.currentTarget instanceof HTMLVideoElement) {
           event.currentTarget.pause();
         }
       }
-    },
-    [autoPause],
-  );
+    };
 
-  useEffect(() => {
     for (const video of document.body.getElementsByTagName("video")) {
       video.style.filter = autoPause ? "grayscale(100%) blue(5px)" : "none";
       if (autoPause) {
+        video.addEventListener("play", autoPauseEventHandler);
         video.pause();
       } else {
         video.removeEventListener("play", autoPauseEventHandler);
-      }
-    }
-  }, [autoPause]);
-
-  useEffect(() => {
-    for (const video of document.body.getElementsByTagName("video")) {
-      video.addEventListener("play", autoPauseEventHandler);
-      video.style.filter = initialValue ? "grayscale(100%) blue(5px)" : "none";
-      if (initialValue) {
-        video.pause();
-        video.autoplay = false;
-        video.muted = true;
       }
     }
 
@@ -69,7 +52,7 @@ export const useAutoPause = (initialValue: boolean = true) => {
         video.removeEventListener("play", autoPauseEventHandler);
       }
     };
-  }, []);
+  }, [autoPause]);
 
   return setAutoPause;
 };

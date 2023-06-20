@@ -20,7 +20,7 @@ const main = async () => {
     sqlite.db = new sqlite3.opfs.OpfsDb("/mydb.sqlite3");
     console.log("The OPFS is available.");
   } else {
-    sqlite.db = new oo.DB("/mydb.sqlite3", "ct");
+    sqlite.db = new oo.DB(":memory:", "cw");
     console.log("The OPFS is not available.");
   }
   console.log("transient db =", sqlite.db.filename);
@@ -33,9 +33,13 @@ const main = async () => {
       create_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
+    // sqlite.db.exec(
+    //   `INSERT INTO VideoQueue (url) VALUES ('https://www.youtube.com/watch?v=9bZkp7q19f0')`,
+    // );
+
     console.log("Query data with exec() using rowMode 'array'...");
     sqlite.db.exec({
-      sql: "SELECT a FROM VideoQueue ORDER BY a LIMIT 3",
+      sql: "SELECT url FROM VideoQueue ORDER BY url LIMIT 3",
       rowMode: "array", // 'array' (default), 'object', or 'stmt'
       callback: function (row) {
         console.log("row ", ++this.counter, "=", row);

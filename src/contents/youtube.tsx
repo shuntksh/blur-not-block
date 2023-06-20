@@ -23,7 +23,7 @@ export const getStyle: PlasmoGetStyle = () => {
   return style;
 };
 
-const TIMEOUT = 1;
+const TIMEOUT = 10;
 const App = () => {
   const [isOpen, setOpen] = useState(true);
   const [timer, setTimer] = useState(-1); // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -40,6 +40,7 @@ const App = () => {
       setAutoPause(true);
 
       if (window.location.href === "https://www.youtube.com") {
+        document.body.style.overflow = "auto";
         setVideoPage(false);
         setGrayscale(true);
       }
@@ -47,12 +48,13 @@ const App = () => {
       // If the current page is a video page, pause all videos
       else if (
         window.location.href.startsWith("https://www.youtube.com/watch") ||
-        window.location.href.startsWith("https://www.youtube.com/shorts/")
+        window.location.href.startsWith("https://www.youtube.com/shorts")
       ) {
         setGrayscale(true);
+        document.body.style.overflow = "hidden";
+
         // Remove the secondary column
         const secondary = document.querySelector("#secondary");
-        document.body.style.overflow = "hidden";
         if (secondary) {
           for (const child of secondary.children) {
             child.remove();
@@ -99,7 +101,7 @@ const App = () => {
 
   if (!videoPage || !isOpen) {
     document.body.style.overflow = "auto";
-    // setAutoPause(false);
+
     return null;
   }
 
@@ -148,14 +150,41 @@ const App = () => {
               <div className="flex-grow-0">
                 <div className="flex gap-2 mb-16 flex=0">
                   <button
-                    className="btn btn-lg  border-4 text-green-800 bg-green-400 border-green-600 hover:bg-green-400/75 hover:border-green-600"
+                    className="btn btn-lg  border-4 text-green-600 bg-green-300 border-green-600 hover:bg-green-400/75 hover:border-green-600"
                     onClick={() => {
                       window.location.href = "https://www.youtube.com/";
                     }}>
-                    Let's Go Back
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="3"
+                      stroke="currentColor"
+                      className="w-10 h-10 pr-1">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"
+                      />
+                    </svg>
+                    Go Back
                   </button>
-                  <button className="btn btn-lg border-4 text-stone-500 border-stone-500/50 hover:bg-gray-300/50 hover:border-stone-500/50">
+                  <button className="btn btn-lg border-4 text-stone-500/50 w-[280px] border-stone-500/50 hover:bg-gray-300/50 hover:border-stone-500/50">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="3"
+                      stroke="currentColor"
+                      className="w-10 h-10 pr-1">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
                     I might want to watch it later
+                    {false && <span className="loading loading-spinner"></span>}
                   </button>
                 </div>
               </div>
@@ -206,8 +235,8 @@ const App = () => {
                           padding: "0.1em 0.4em",
                           borderRadius: "0.8em 0.3em",
                         }}>
-                        I have 10 seconds to decide if this video really worth
-                        my time right now.
+                        I have {TIMEOUT} seconds to decide if this video really
+                        worth my time right now.
                       </span>
                     </p>
                   </div>
