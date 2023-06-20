@@ -7,6 +7,9 @@ import type {
 import { StrictMode } from "react";
 import { useEffect, useRef, useState } from "react";
 
+import { useApplyImageFilter } from "~shared/use-apply-image-filter";
+import { useAutoPause } from "~shared/use-auto-pause";
+
 export const config: PlasmoCSConfig = {
   matches: ["https://www.youtube.com/*"],
   all_frames: true,
@@ -20,70 +23,33 @@ export const getStyle: PlasmoGetStyle = () => {
   return style;
 };
 
-let shouldGrayScale = true;
-
-// Function to set filter to grayscale
-function setGrayscale(images) {
-  for (var i = 0; i < images.length; i++) {
-    images[i].style.filter = "grayscale(100%) blur(3px)";
-  }
-}
-
-const nodeIsImageElement = (node: Node): node is HTMLImageElement => {
-  return node.nodeName === "IMG";
-};
-
-const nodeIsDOMElement = (node: Node): node is HTMLElement => {
-  return node instanceof HTMLElement;
-};
-
-const observer = new MutationObserver((mutations) => {
-  if (!shouldGrayScale) {
-    return;
-  }
-  mutations.forEach((mutation) => {
-    if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
-      for (let i = 0; i < mutation.addedNodes.length; i++) {
-        const node = mutation.addedNodes[i];
-        if (nodeIsImageElement(node)) {
-          // If new img element is added, set it to grayscale
-          node.style.filter = "grayscale(100%) blur(3px)";
-        } else if (
-          nodeIsDOMElement(node) &&
-          node.getElementsByTagName !== undefined
-        ) {
-          // If a new node is added that contains img elements, set them to grayscale
-          setGrayscale(node.getElementsByTagName("img"));
-        }
-      }
-    }
-  });
-});
-
-observer.observe(document.body, {
-  childList: true,
-  subtree: true,
-});
-
-// Set filte
 const App = () => {
   const [isOpen, setOpen] = useState(true);
   const [timer, setTimer] = useState(-1); // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
   const [videoPage, setVideoPage] = useState(false);
   const modalRef = useRef<HTMLDialogElement>(null);
+  const setGrayscale = useApplyImageFilter();
+  const setAutoPause = useAutoPause(false);
 
   useEffect(() => {
     console.info("Content Script Loaded");
     const ytNavigationEventHandler = () => {
       console.info("yt-navigate-finish", window.location.href);
       setTimer(-1);
-      setGrayscale(document.getElementsByTagName("img"));
+
+      if (window.location.href === "https://www.youtube.com") {
+        setVideoPage(false);
+        setAutoPause(false);
+        setGrayscale(true);
+      }
 
       // If the current page is a video page, pause all videos
-      if (
+      else if (
         window.location.href.startsWith("https://www.youtube.com/watch") ||
         window.location.href.startsWith("https://www.youtube.com/shorts/")
       ) {
+        setGrayscale(true);
+        setAutoPause(true);
         // Remove the secondary column
         const secondary = document.querySelector("#secondary");
         document.body.style.overflow = "hidden";
@@ -92,14 +58,8 @@ const App = () => {
             child.remove();
           }
         }
-
-        for (const video of document.querySelectorAll("video")) {
-          video.pause();
-          video.muted = true;
-          video.style.filter = "grayscale(100%) blur(25px)";
-        }
-
         setVideoPage(true);
+        setOpen(true);
       } else {
         setVideoPage(false);
       }
@@ -124,12 +84,6 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    for (const video of document.querySelectorAll("video")) {
-      video.pause();
-    }
-  }, [videoPage]);
-
-  useEffect(() => {
     if (timer === 0) {
       setOpen(false);
       setTimer(-1);
@@ -144,9 +98,7 @@ const App = () => {
 
   if (!videoPage || !isOpen) {
     document.body.style.overflow = "auto";
-    for (const video of document.querySelectorAll("video")) {
-      video.style.filter = "none";
-    }
+    // setAutoPause(false);
     return null;
   }
 
