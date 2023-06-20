@@ -1,6 +1,8 @@
 # focusflow
 
-![Logo](assets/icon.png)
+<p align="center">
+  <img width="460" height="300" src="assets/icon.png">
+</p>
 
 A simple browser extension that helps you defer your urge to open distracting websites such as YouTube.
 
