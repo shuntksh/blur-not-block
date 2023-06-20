@@ -41,5 +41,10 @@
     "host_permissions": [
       "https://*/*"
     ]
+  },
+  "renovate": {
+    "extends": [
+      "config:base"
+    ]
   }
 }
