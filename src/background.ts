@@ -80,6 +80,25 @@ class VideoList {
     await this.#saveCacheToDisk();
   }
 
+  async delete(video: WatchLater) {
+    console.log("deleting", video);
+    try {
+      video = WatchLaterSchema.parse(video);
+    } catch (err) {
+      console.error(err);
+    }
+
+    delete this.#cache[video.url];
+    this.#keys = this.#keys.filter((key) => key !== video.url);
+    await this.#saveCacheToDisk();
+  }
+
+  async deleteAll() {
+    this.#cache = {};
+    this.#keys = [];
+    await this.#saveCacheToDisk();
+  }
+
   #saveCacheToDisk = async () => {
     console.log("saving", this.#cache);
     await chrome.storage.local.set({ [LIST_STORAGE_KEY]: this.#cache });
@@ -106,6 +125,7 @@ class VideoList {
 const videoList = new VideoList();
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log("Received message", request);
   if (request.command === "add") {
     (async () => {
       try {
@@ -120,17 +140,31 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 
-  if (request.command === "delete") {
-    async () => {
+  if (request.command === "deleteAll") {
+    (async () => {
       try {
-        const item = WatchLaterSchema.parse(request.data);
-        await videoList.add(item);
-        sendResponse({ success: true, message: "added" });
+        await videoList.deleteAll();
+        sendResponse({ success: true, message: "deleted" });
       } catch (err) {
         console.error(err);
         sendResponse({ success: false, message: err?.message || "error" });
       }
-    };
+    })();
+    return true;
+  }
+
+  if (request.command === "delete") {
+    (async () => {
+      console.log("deleting", request.data);
+      try {
+        const item = WatchLaterSchema.parse(request.data);
+        await videoList.delete(item);
+        sendResponse({ success: true, message: "deleted" });
+      } catch (err) {
+        console.error(err);
+        sendResponse({ success: false, message: err?.message || "error" });
+      }
+    })();
     return true;
   }
 });
@@ -141,7 +175,7 @@ const main = async () => {
   if (!config[CONFIG_STORAGE_KEY]) {
     await chrome.storage.sync.set({ [CONFIG_STORAGE_KEY]: defaultConfig });
   }
-  console.log("config", config[CONFIG_STORAGE_KEY]);
+  console.log("Enabled", config[CONFIG_STORAGE_KEY]?.enabled);
 };
 
 main()

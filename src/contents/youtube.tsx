@@ -110,11 +110,10 @@ const App = () => {
   const [meta, setMeta] = useState<Meta>(undefined);
 
   useEffect(() => {
-    const ytNavigationEventHandler = () => {
+    const handler = () => {
       console.info("yt-navigate-finish", config.enabled, window.location.href);
 
       setTimer(-1);
-      setAutoPause(config.enabled);
       setMeta(undefined);
 
       const url = new URL(window.location.href);
@@ -122,6 +121,8 @@ const App = () => {
       if (url.hostname === "www.youtube.com" && url.pathname === "/") {
         console.log("Is YouTube Top Page");
         document.body.style.overflow = "auto";
+        setShowModal(false);
+        setAutoPause(config.enabled);
         setVideoPage(config.enabled);
         setGrayscale(config.enabled);
       }
@@ -131,6 +132,7 @@ const App = () => {
         window.location.href.startsWith("https://www.youtube.com/watch") ||
         window.location.href.startsWith("https://www.youtube.com/shorts")
       ) {
+        setAutoPause(config.enabled);
         setShowModal(config.enabled);
         setGrayscale(config.enabled);
         if (config.enabled) {
@@ -144,24 +146,21 @@ const App = () => {
     };
 
     console.info("Config Loaded", config.enabled);
-    ytNavigationEventHandler();
+    handler();
 
     // TODO: Use DOMLoadedEvent instead
     const timer = window.setTimeout(() => {
-      ytNavigationEventHandler();
+      handler();
     }, 2000);
 
     modalRef.current?.showModal();
 
-    window.addEventListener("yt-navigate-finish", ytNavigationEventHandler);
+    window.addEventListener("yt-navigate-finish", handler);
 
     return () => {
       console.log("cleanup event listeners");
       window.clearTimeout(timer);
-      window.removeEventListener(
-        "yt-navigate-finish",
-        ytNavigationEventHandler,
-      );
+      window.removeEventListener("yt-navigate-finish", handler);
     };
   }, [config.enabled]);
 
@@ -375,17 +374,10 @@ const LoadingScreen = ({
       <div
         className={`${
           show ? "show" : "hide"
-        } loading-container shadow-xl card w-96 glass`}>
-        <figure>
-          <img src={thumbnail} alt="thumbnail" className="w-full h-full" />
-        </figure>
-        <div className="card-body text-stone-900">
-          <h2 className="card-title line-clamp-2 text-ellipsis">{title}</h2>
-          <p className="line-clamp-3 text-ellipsis">{description}</p>
-          <div className="card-actions justify-center mt-2 text-xl">
-            <span>Uploading</span>
-            <span className="loading loading-xl loading-spinner"></span>
-          </div>
+        } loading-container shadow-xl card w-96 h-96 glass flex items-center justify-center`}>
+        <div className="card-actions justify-center mt-2 text-xl">
+          <span>Uploading</span>
+          <span className="loading loading-xl loading-spinner"></span>
         </div>
       </div>
     </div>
