@@ -15,7 +15,7 @@ import { StrictMode } from "react";
 import { useEffect, useRef, useState } from "react";
 
 import { useApplyImageFilter } from "~shared/use-apply-image-filter";
-import { useAutoPause } from "~shared/use-auto-pause";
+import { useAutoPauseVideo } from "~shared/use-auto-pause";
 import { useConfig } from "~shared/use-config";
 
 import type { WatchLater } from "../background";
@@ -87,7 +87,7 @@ const App = () => {
   const [videoPage, setVideoPage] = useState(false);
   const modalRef = useRef<HTMLDialogElement>(null);
   const setGrayscale = useApplyImageFilter(false);
-  const setAutoPause = useAutoPause(false);
+  const setAutoPause = useAutoPauseVideo(false);
   const config = useConfig();
 
   const submitMutation = useMutation({

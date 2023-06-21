@@ -23,9 +23,6 @@ dependencies:
   react-dom:
     specifier: 18.2.0
     version: 18.2.0(react@18.2.0)
-  react-player:
-    specifier: 2.12.0
-    version: 2.12.0(react@18.2.0)
   tailwindcss:
     specifier: 3.3.2
     version: 3.3.2
@@ -5063,10 +5060,6 @@ packages:
       '@lmdb/lmdb-win32-x64': 2.7.11
     dev: false
 
-  /load-script@1.0.0:
-    resolution: {integrity: sha512-kPEjMFtZvwL9TaZo0uZ2ml+Ye9HUMmPwbYRJ324qF9tqMejwykJ5ggTyvzmrbBeapCAbk98BSbTeovHEEP1uCA==}
-    dev: false
-
   /load-tsconfig@0.2.5:
     resolution: {integrity: sha512-IXO6OCs9yg8tMKzfPZ1YmheJbZCiEsnBdcB03l0OcfK9prKnJb96siuHCr5Fl37/yo9DnKU+TLpxzTUspw9shg==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
@@ -5217,10 +5210,6 @@ packages:
 
   /mdn-data@2.0.14:
     resolution: {integrity: sha512-dn6wd0uw5GsdswPFfsgMp5NSB0/aDe6fK94YJV/AJDYXL6HVLWBsxeq7js7Ad+mU2K9LAlwpk6kN2D5mwCPVow==}
-    dev: false
-
-  /memoize-one@5.2.1:
-    resolution: {integrity: sha512-zYiwtZUcYyXKo/np96AGZAckk+FWWsUdJ3cHGGmld7+AhvcWmQyGCYUh1hc4Q/pkOhb65dQR/pqCyK0cOaHz4Q==}
     dev: false
 
   /meow@6.1.1:
@@ -6014,14 +6003,6 @@ packages:
     engines: {node: '>= 0.6.0'}
     dev: false
 
-  /prop-types@15.8.1:
-    resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
-    dependencies:
-      loose-envify: 1.4.0
-      object-assign: 4.1.1
-      react-is: 16.13.1
-    dev: false
-
   /proto-list@1.2.4:
     resolution: {integrity: sha512-vtK/94akxsTMhe0/cbfpR+syPuszcuwhqVjJq26CuNDgFGj682oRBXOP5MJpv2r7JtE8MsiepGIqvvOTBwn2vA==}
     dev: false
@@ -6615,25 +6596,8 @@ packages:
     resolution: {integrity: sha512-nQTTcUu+ATDbrSD1BZHr5kgSD4oF8OFjxun8uAaL8RwPBacGBNPf/yAuVVdx17N8XNzRDMrZ9XcKZHCjPW+9ew==}
     dev: false
 
-  /react-fast-compare@3.2.2:
-    resolution: {integrity: sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==}
-    dev: false
-
   /react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
-    dev: false
-
-  /react-player@2.12.0(react@18.2.0):
-    resolution: {integrity: sha512-rymLRz/2GJJD+Wc01S7S+i9pGMFYnNmQibR2gVE3KmHJCBNN8BhPAlOPTGZtn1uKpJ6p4RPLlzPQ1OLreXd8gw==}
-    peerDependencies:
-      react: '>=16.6.0'
-    dependencies:
-      deepmerge: 4.3.1
-      load-script: 1.0.0
-      memoize-one: 5.2.1
-      prop-types: 15.8.1
-      react: 18.2.0
-      react-fast-compare: 3.2.2
     dev: false
 
   /react-refresh@0.14.0:

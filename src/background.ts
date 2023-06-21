@@ -119,6 +119,20 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     })();
     return true;
   }
+
+  if (request.command === "delete") {
+    async () => {
+      try {
+        const item = WatchLaterSchema.parse(request.data);
+        await videoList.add(item);
+        sendResponse({ success: true, message: "added" });
+      } catch (err) {
+        console.error(err);
+        sendResponse({ success: false, message: err?.message || "error" });
+      }
+    };
+    return true;
+  }
 });
 
 const main = async () => {

@@ -8,9 +8,11 @@ import { StrictMode } from "react";
 import { useEffect } from "react";
 
 import { useApplyImageFilter } from "~shared/use-apply-image-filter";
+import { useAutoPauseVideo } from "~shared/use-auto-pause";
+import { useConfig } from "~shared/use-config";
 
 export const config: PlasmoCSConfig = {
-  matches: ["https://www.amazon.com/*", "https://twitter.com/*"],
+  matches: ["https://www.reddit.com/*", "https://www.amazon.com/*"],
   all_frames: true,
 };
 export const createShadowRoot: PlasmoCreateShadowRoot = (shadowHost) =>
@@ -23,15 +25,17 @@ export const getStyle: PlasmoGetStyle = () => {
 };
 
 const App = () => {
-  const setGrayscale = useApplyImageFilter();
+  const { enabled } = useConfig();
+  const setAutoPauseVideo = useAutoPauseVideo();
+  const setGrayscale = useApplyImageFilter(false);
 
   useEffect(() => {
-    setGrayscale(true);
-    document.body.style.filter = "grayscale(100%)";
+    setGrayscale(enabled);
+    setAutoPauseVideo(enabled);
     return () => {
       setGrayscale(false);
     };
-  }, []);
+  }, [enabled]);
 
   return <StrictMode></StrictMode>;
 };

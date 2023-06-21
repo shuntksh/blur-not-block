@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export const useAutoPause = (initialValue: boolean = true) => {
+export const useAutoPauseVideo = (initialValue: boolean = true) => {
   const [autoPause, setAutoPause] = useState(initialValue);
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export const useAutoPause = (initialValue: boolean = true) => {
   return setAutoPause;
 };
 
-export default useAutoPause;
+export default useAutoPauseVideo;
 
 const nodeIsVideoElement = (node: Node): node is HTMLVideoElement => {
   return node.nodeName === "VIDEO";

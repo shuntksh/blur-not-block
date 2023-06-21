@@ -1,10 +1,11 @@
 # focusflow
 
+Let's make the Internet less interesting so that we can focus on what matters. A simple browser extension that helps you defer your urge to open distracting websites such as YouTube.
+
 <p align="center">
   <img width="300" height="300" src="assets/icon.png">
 </p>
 
-A simple browser extension that helps you defer your urge to open distracting websites such as YouTube.
 
 ## About the LLM model usage
 
