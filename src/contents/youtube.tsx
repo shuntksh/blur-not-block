@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { useApplyImageFilter } from "~shared/use-apply-image-filter";
 import { useAutoPause } from "~shared/use-auto-pause";
+import { useConfig } from "~shared/use-config";
 
 import type { WatchLater } from "../background";
 
@@ -81,12 +82,13 @@ function extractVideoMetadata(): Meta {
 }
 
 const App = () => {
-  const [isOpen, setOpen] = useState(true);
+  const [showModal, setShowModal] = useState(false); // [true, false]
   const [timer, setTimer] = useState(-1); // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
   const [videoPage, setVideoPage] = useState(false);
   const modalRef = useRef<HTMLDialogElement>(null);
-  const setGrayscale = useApplyImageFilter();
-  const setAutoPause = useAutoPause(true);
+  const setGrayscale = useApplyImageFilter(false);
+  const setAutoPause = useAutoPause(false);
+  const config = useConfig();
 
   const submitMutation = useMutation({
     mutationFn: async (video: WatchLater) => {
@@ -108,17 +110,20 @@ const App = () => {
   const [meta, setMeta] = useState<Meta>(undefined);
 
   useEffect(() => {
-    console.info("Content Script Loaded");
     const ytNavigationEventHandler = () => {
-      console.info("yt-navigate-finish", window.location.href);
+      console.info("yt-navigate-finish", config.enabled, window.location.href);
+
       setTimer(-1);
-      setAutoPause(true);
+      setAutoPause(config.enabled);
       setMeta(undefined);
 
-      if (window.location.href === "https://www.youtube.com") {
+      const url = new URL(window.location.href);
+
+      if (url.hostname === "www.youtube.com" && url.pathname === "/") {
+        console.log("Is YouTube Top Page");
         document.body.style.overflow = "auto";
-        setVideoPage(false);
-        setGrayscale(true);
+        setVideoPage(config.enabled);
+        setGrayscale(config.enabled);
       }
 
       // If the current page is a video page, pause all videos
@@ -126,25 +131,22 @@ const App = () => {
         window.location.href.startsWith("https://www.youtube.com/watch") ||
         window.location.href.startsWith("https://www.youtube.com/shorts")
       ) {
-        setGrayscale(true);
-        document.body.style.overflow = "hidden";
-
-        // Remove the secondary column
-        const secondary = document.querySelector("#secondary");
-        if (secondary) {
-          for (const child of secondary.children) {
-            child.remove();
-          }
+        setShowModal(config.enabled);
+        setGrayscale(config.enabled);
+        if (config.enabled) {
+          document.documentElement.scrollTop = 0;
         }
-        setVideoPage(true);
-        setOpen(true);
+        document.body.style.overflow = config.enabled ? "hidden" : "auto";
+        setVideoPage(config.enabled);
       } else {
-        setVideoPage(false);
+        setVideoPage(config.enabled);
       }
     };
 
+    console.info("Config Loaded", config.enabled);
     ytNavigationEventHandler();
 
+    // TODO: Use DOMLoadedEvent instead
     const timer = window.setTimeout(() => {
       ytNavigationEventHandler();
     }, 2000);
@@ -152,20 +154,21 @@ const App = () => {
     modalRef.current?.showModal();
 
     window.addEventListener("yt-navigate-finish", ytNavigationEventHandler);
+
     return () => {
+      console.log("cleanup event listeners");
       window.clearTimeout(timer);
       window.removeEventListener(
         "yt-navigate-finish",
         ytNavigationEventHandler,
       );
     };
-  }, []);
+  }, [config.enabled]);
 
   // Effect for countdown timer. If the timer is 0, close the modal
   // Ideally this should be in a separate component
   useEffect(() => {
     if (timer === 0) {
-      setOpen(false);
       setTimer(-1);
       setAutoPause(false);
     } else if (timer > 0) {
@@ -185,7 +188,7 @@ const App = () => {
   };
 
   // If not video page or modal is closed, restore the scroll
-  if (!videoPage || !isOpen) {
+  if (!videoPage || !showModal) {
     document.body.style.overflow = "auto";
     return null;
   }
@@ -193,7 +196,7 @@ const App = () => {
   return (
     <StrictMode>
       <div className="w-[100vw] h-[100vh] flex relative items-center justify-center bg-stone-800/90">
-        <div className="modal w-[500px] h-[400px] bg-stone-100 shadow-lg rounded-lg border-[8px] border-red-700 box-border">
+        <div className="w-[500px] h-[400px] bg-stone-100 shadow-lg rounded-lg border-[8px] border-red-700 box-border">
           {timer === -1 ? (
             <div className="w-full h-full relative flex overflow-hidden items-center justify-center flex-col">
               {submitMutation.isError && <div>Error!</div>}

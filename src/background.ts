@@ -5,6 +5,35 @@ export const sqlite = {
 };
 
 export const LIST_STORAGE_KEY = "watch-later-list";
+export const CONFIG_STORAGE_KEY = "__focus_flow_config__";
+
+export const ConfigSchema = z.object({
+  enabled: z.boolean().default(true),
+  youtube: z.object({
+    hideSecondary: z.boolean().default(true),
+    hideComments: z.boolean().default(true),
+    hideRelated: z.boolean().default(true),
+    autoPause: z.boolean().default(true),
+  }),
+});
+
+export class Config {
+  #config: z.infer<typeof ConfigSchema>;
+
+  constructor(config: z.infer<typeof ConfigSchema>) {
+    this.#config = config;
+  }
+}
+
+export const defaultConfig = {
+  enabled: true,
+  youtube: {
+    hideSecondary: true,
+    hideComments: true,
+    hideRelated: true,
+    autoPause: true,
+  },
+} as const;
 
 export const WatchLaterSchema = z.object({
   url: z.string().url(),
@@ -94,6 +123,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 const main = async () => {
   await videoList.init();
+  const config = await chrome.storage.sync.get([CONFIG_STORAGE_KEY]);
+  if (!config[CONFIG_STORAGE_KEY]) {
+    await chrome.storage.sync.set({ [CONFIG_STORAGE_KEY]: defaultConfig });
+  }
+  console.log("config", config[CONFIG_STORAGE_KEY]);
 };
 
 main()

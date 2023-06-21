@@ -43,6 +43,7 @@ export const useApplyImageFilter = (initialValue = true) => {
   });
 
   useEffect(() => {
+    console.log("Applying filter", shouldApplyFilter);
     applyFilter(document.getElementsByTagName("img"), shouldApplyFilter);
     if (shouldApplyFilter && !hasRun.current) {
       observer.observe(document.body, {
