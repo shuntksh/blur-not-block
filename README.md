@@ -1,7 +1,7 @@
 # focusflow
 
 <p align="center">
-  <img width="200" height="200" src="assets/icon.png">
+  <img width="300" height="300" src="assets/icon.png">
 </p>
 
 A simple browser extension that helps you defer your urge to open distracting websites such as YouTube.
