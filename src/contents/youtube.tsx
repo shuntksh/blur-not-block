@@ -193,7 +193,7 @@ const App = () => {
   return (
     <StrictMode>
       <div className="w-[100vw] h-[100vh] flex relative items-center justify-center bg-stone-800/90">
-        <div className="divide-y w-[500px] h-[400px] bg-stone-100 shadow-lg rounded-lg border-[8px] border-red-700 box-border">
+        <div className="modal w-[500px] h-[400px] bg-stone-100 shadow-lg rounded-lg border-[8px] border-red-700 box-border">
           {timer === -1 ? (
             <div className="w-full h-full relative flex overflow-hidden items-center justify-center flex-col">
               {submitMutation.isError && <div>Error!</div>}

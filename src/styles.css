@@ -37,6 +37,27 @@
     animation: slide-up-hide 250ms forwards;
   }
 
+  .modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    opacity: 0;
+    z-index: 1000;
+    animation: modal-show 250ms forwards;
+  }
+
+  @keyframes modal-show {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -47%) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+
   @keyframes slide-up-show {
     0% {
       opacity: 0;
