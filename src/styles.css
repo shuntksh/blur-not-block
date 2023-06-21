@@ -22,4 +22,40 @@
     min-width: var(--window-width);
     overflow: hidden;
   }
+
+  .loading-container {
+    opacity: 0;
+  }
+
+  .loading-container.show {
+    opacity: 1;
+    transform: translateY(0px);
+    animation: slide-up-show 250ms forwards;
+  }
+
+  .loading-container.hide {
+    animation: slide-up-hide 250ms forwards;
+  }
+
+  @keyframes slide-up-show {
+    0% {
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0px);
+    }
+  }
+
+  @keyframes slide-up-hide {
+    0% {
+      opacity: 1;
+      transform: translateY(0px);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-50px);
+    }
+  }
 }

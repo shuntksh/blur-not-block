@@ -1,63 +1,102 @@
-import sqlite3InitModule from "@sqlite.org/sqlite-wasm";
+import { send } from "process";
 import { z } from "zod";
 
 export const sqlite = {
   db: undefined,
 };
 
-export const AddVideoSchema = z.object({
+export const LIST_STORAGE_KEY = "watch-later-list";
+
+export const WatchLaterSchema = z.object({
   url: z.string().url(),
+  provider: z.enum(["youtube"]),
+  title: z.string().optional(),
+  thumbnailUrl: z.string().optional(),
+  description: z.string().optional().default(""),
+  channel: z.string().optional().default(""),
+  channelUrl: z.string().optional().default(""),
+  addedAt: z
+    .string()
+    .datetime()
+    .default(() => new Date().toISOString()),
+  favorite: z.boolean().default(() => false),
+  watched: z.boolean().default(() => false),
+});
+export type WatchLater = z.infer<typeof WatchLaterSchema>;
+
+export const WatchLaterListSchema = z
+  .record(z.string().url(), WatchLaterSchema)
+  .default({});
+export type WatchLaterList = z.infer<typeof WatchLaterListSchema>;
+
+class VideoList {
+  #cache = WatchLaterListSchema.parse({});
+  #keys = Object.keys(this.#cache);
+  #byDates: { [key: string]: string } = {};
+  constructor() {}
+
+  async init() {
+    // Load from local storage
+    console.log("initializing");
+    const data = await chrome.storage.local.get(LIST_STORAGE_KEY);
+    this.#updateCacheAndSortKeys(data[LIST_STORAGE_KEY]);
+    console.log(data[LIST_STORAGE_KEY], this.#keys);
+  }
+
+  async add(video: WatchLater) {
+    console.log("adding", video);
+    video = WatchLaterSchema.parse(video);
+
+    this.#cache[video.url] = video;
+    this.#keys.unshift(video.url);
+    await this.#saveCacheToDisk();
+  }
+
+  #saveCacheToDisk = async () => {
+    console.log("saving", this.#cache);
+    await chrome.storage.local.set({ [LIST_STORAGE_KEY]: this.#cache });
+  };
+
+  #updateCacheAndSortKeys = (data: unknown) => {
+    this.#cache = WatchLaterListSchema.parse(data);
+
+    const array = Object.keys(this.#cache);
+    array.sort(
+      (a, b) =>
+        new Date(this.#cache[a].addedAt).getTime() -
+        new Date(this.#cache[b].addedAt).getTime(),
+    );
+
+    this.#keys = array;
+
+    this.#byDates = {};
+    for (const key of this.#keys) {
+      const date = this.#cache[key].addedAt.split("T")[0];
+    }
+  };
+}
+const videoList = new VideoList();
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.command === "add") {
+    (async () => {
+      try {
+        const item = WatchLaterSchema.parse(request.data);
+        await videoList.add(item);
+        sendResponse({ success: true, message: "added" });
+      } catch (err) {
+        console.error(err);
+        sendResponse({ success: false, message: err?.message || "error" });
+      }
+    })();
+    return true;
+  }
 });
 
 const main = async () => {
-  const sqlite3 = await sqlite3InitModule();
-
-  const capi = sqlite3.capi; /*C-style API*/
-  const oo = sqlite3.oo1; /*high-level OO API*/
-  console.log("sqlite3", capi.sqlite3_libversion(), capi.sqlite3_sourceid());
-
-  if (sqlite3.opfs) {
-    sqlite.db = new sqlite3.opfs.OpfsDb("/mydb.sqlite3");
-    console.log("The OPFS is available.");
-  } else {
-    sqlite.db = new oo.DB(":memory:", "cw");
-    console.log("The OPFS is not available.");
-  }
-  console.log("transient db =", sqlite.db.filename);
-
-  try {
-    console.log("Create a table...");
-    sqlite.db.exec(`CREATE TABLE IF NOT EXISTS VideoQueue (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      url TEXT NOT NULL,
-      create_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`);
-
-    // sqlite.db.exec(
-    //   `INSERT INTO VideoQueue (url) VALUES ('https://www.youtube.com/watch?v=9bZkp7q19f0')`,
-    // );
-
-    console.log("Query data with exec() using rowMode 'array'...");
-    sqlite.db.exec({
-      sql: "SELECT url FROM VideoQueue ORDER BY url LIMIT 3",
-      rowMode: "array", // 'array' (default), 'object', or 'stmt'
-      callback: function (row) {
-        console.log("row ", ++this.counter, "=", row);
-      }.bind({ counter: 0 }),
-    });
-  } catch (err) {
-    console.error(err);
-    sqlite.db.close();
-  }
-
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.message === "add") {
-      const { url } = AddVideoSchema.parse(request);
-      console.log("add", url);
-    }
-  });
+  await videoList.init();
 };
 
 main()
-  .then(() => console.log("done"))
+  .then(() => console.log("Ready"))
   .catch((err) => console.error(err));

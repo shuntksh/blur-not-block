@@ -1,3 +1,10 @@
+import {
+  QueryClient,
+  QueryClientProvider,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import cssText from "data-text:~styles.css";
 import type {
   PlasmoCSConfig,
@@ -9,6 +16,8 @@ import { useEffect, useRef, useState } from "react";
 
 import { useApplyImageFilter } from "~shared/use-apply-image-filter";
 import { useAutoPause } from "~shared/use-auto-pause";
+
+import type { WatchLater } from "../background";
 
 export const config: PlasmoCSConfig = {
   matches: ["https://www.youtube.com/*"],
@@ -24,6 +33,53 @@ export const getStyle: PlasmoGetStyle = () => {
 };
 
 const TIMEOUT = 10;
+
+type Meta = {
+  url?: string;
+  title: string;
+  description: string;
+  channel: string;
+  channelUrl: string;
+  thumbnailUrl: string;
+};
+
+function extractVideoID(url: string): string | null {
+  const regex = /(?:v=)([\w-]+)/;
+  const match = url.match(regex);
+  return match ? match[1] : null;
+}
+
+function extractVideoMetadata(): Meta {
+  const title =
+    document.querySelector("meta[name='title']")?.getAttribute("content") ||
+    window.document.title;
+  const description =
+    document
+      .querySelector("meta[name='description']")
+      ?.getAttribute("content") || "";
+
+  const channel =
+    document
+      .querySelector("span[itemprop='author'] link[itemprop='name']")
+      ?.getAttribute("content") || "";
+
+  const channelUrl =
+    document
+      .querySelector("span[itemprop='author'] link[itemprop='url']")
+      ?.getAttribute("href") || "";
+
+  const id = extractVideoID(window.location.href);
+
+  return {
+    url: window.location.href,
+    title,
+    description,
+    channel,
+    channelUrl,
+    thumbnailUrl: `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`,
+  };
+}
+
 const App = () => {
   const [isOpen, setOpen] = useState(true);
   const [timer, setTimer] = useState(-1); // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -32,12 +88,32 @@ const App = () => {
   const setGrayscale = useApplyImageFilter();
   const setAutoPause = useAutoPause(true);
 
+  const submitMutation = useMutation({
+    mutationFn: async (video: WatchLater) => {
+      return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage(
+          { command: "add", data: video },
+          (response) => {
+            if (response && response.success) {
+              resolve(response);
+            } else {
+              reject(response.message);
+            }
+          },
+        );
+      });
+    },
+  });
+
+  const [meta, setMeta] = useState<Meta>(undefined);
+
   useEffect(() => {
     console.info("Content Script Loaded");
     const ytNavigationEventHandler = () => {
       console.info("yt-navigate-finish", window.location.href);
       setTimer(-1);
       setAutoPause(true);
+      setMeta(undefined);
 
       if (window.location.href === "https://www.youtube.com") {
         document.body.style.overflow = "auto";
@@ -85,6 +161,8 @@ const App = () => {
     };
   }, []);
 
+  // Effect for countdown timer. If the timer is 0, close the modal
+  // Ideally this should be in a separate component
   useEffect(() => {
     if (timer === 0) {
       setOpen(false);
@@ -99,20 +177,28 @@ const App = () => {
     }
   }, [timer]);
 
+  const handleAddToWatchLater = () => {
+    const meta = extractVideoMetadata();
+    console.log(meta);
+    submitMutation.mutate({ ...meta, provider: "youtube" });
+    setMeta(meta);
+  };
+
+  // If not video page or modal is closed, restore the scroll
   if (!videoPage || !isOpen) {
     document.body.style.overflow = "auto";
-
     return null;
   }
 
   return (
     <StrictMode>
       <div className="w-[100vw] h-[100vh] flex relative items-center justify-center bg-stone-800/90">
-        <div className="divide-y w-[500px] h-[400px] bg-white shadow-lg rounded-lg ">
+        <div className="divide-y w-[500px] h-[400px] bg-stone-100 shadow-lg rounded-lg border-[8px] border-red-700 box-border">
           {timer === -1 ? (
             <div className="w-full h-full relative flex overflow-hidden items-center justify-center flex-col">
+              {submitMutation.isError && <div>Error!</div>}
               <div className="flex-1 flex items-center flex-col justify-center">
-                <div className="w-[100px] h-[100px] rounded-xl border-4 border-red-700 bg-red-600 shadow-lg mb-6 flex items-center justify-center">
+                <div className="w-[100px] h-[100px] rounded-xl border-4 border-red-700 bg-red-600 shadow-lg flex items-center justify-center hover:scale-105 transition-transform duration-200 ease-in-out hover:-rotate-2">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -150,17 +236,17 @@ const App = () => {
               <div className="flex-grow-0">
                 <div className="flex gap-2 mb-16 flex=0">
                   <button
-                    className="btn btn-lg  border-4 text-green-600 bg-green-300 border-green-600 hover:bg-green-400/75 hover:border-green-600"
-                    onClick={() => {
-                      window.location.href = "https://www.youtube.com/";
-                    }}>
+                    className="btn btn-lg relative shadow-sm hover:shadow-none inline-flex items-center justify-center group border-4 text-green-600 bg-green-300 border-green-600 hover:bg-green-400/75 hover:border-green-600 hover:scale-95"
+                    onClick={() =>
+                      (window.location.href = "https://www.youtube.com/")
+                    }>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
                       strokeWidth="3"
                       stroke="currentColor"
-                      className="w-10 h-10 pr-1">
+                      className="h-full pr-1 ">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -169,36 +255,38 @@ const App = () => {
                     </svg>
                     Go Back
                   </button>
-                  <button className="btn btn-lg border-4 text-stone-500/50 w-[280px] border-stone-500/50 hover:bg-gray-300/50 hover:border-stone-500/50">
+                  <button
+                    className="btn btn-lg shadow-sm relative inline-flex group items-center justify-center border-4 bg-white text-stone-500 w-[280px] border-stone-500 hover:scale-95 hover:shadow-none"
+                    onClick={handleAddToWatchLater}
+                    disabled={submitMutation.isLoading}>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
                       strokeWidth="3"
                       stroke="currentColor"
-                      className="w-10 h-10 pr-1">
+                      className="h-full pr-1">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
-                    I might want to watch it later
-                    {false && <span className="loading loading-spinner"></span>}
+                    <span>I might want to watch it later</span>
                   </button>
                 </div>
               </div>
-              <div className="pb-1 flex-grow-0 flex flex-row items-end">
+              <div className="pb-1 flex-grow-0 flex flex-row items-end hover:text-stone-600">
                 <button onClick={() => setTimer(TIMEOUT)}>
                   I really need to watch this video.
                 </button>
               </div>
 
               <button
-                className="btn btn-circle btn-outline absolute top-2 right-2"
-                onClick={() => {
-                  window.location.href = "https://www.youtube.com/";
-                }}>
+                className="btn btn-circle btn-outline absolute top-2 right-2 shadow-sm inline-flex border-2 items-center justify-center bg-white text-stone-500 border-stone-500 hover:scale-95 hover:shadow-none hover:border-2"
+                onClick={() =>
+                  (window.location.href = "https://www.youtube.com/")
+                }>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-6 w-6"
@@ -208,11 +296,12 @@ const App = () => {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth="2"
+                    strokeWidth="4"
                     d="M6 18L18 6M6 6l12 12"
                   />
                 </svg>
               </button>
+              {submitMutation.isSuccess && meta && <LoadingScreen {...meta} />}
             </div>
           ) : (
             <div className="w-full h-full relative flex overflow-hidden items-center justify-center flex-col bg-red-500/25">
@@ -245,7 +334,7 @@ const App = () => {
               <div>
                 <div className="flex gap-2 mb-16 flex=0">
                   <button
-                    className="btn btn-lg  border-4 text-green-800 bg-green-400 border-green-600 hover:bg-green-400/75 hover:border-green-600"
+                    className="btn btn-lg  border-4 text-green-800 bg-green-400 border-green-600 hover:bg-green-400/75 hover:border-green-600 hover:scale-95"
                     onClick={() => setTimer(-1)}>
                     Never mind. I changed my mind. I want to watch this video
                     later.
@@ -260,4 +349,52 @@ const App = () => {
   );
 };
 
-export default App;
+const LoadingScreen = ({
+  title,
+  description,
+  thumbnailUrl: thumbnail,
+}: Meta) => {
+  const [show, setShow] = useState(true);
+
+  useEffect(() => {
+    const timer1 = setTimeout(() => {
+      setShow(false);
+      window.location.href = "https://www.youtube.com/";
+    }, 1500);
+
+    return () => {
+      clearTimeout(timer1);
+    };
+  }, [show]);
+
+  return (
+    <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center">
+      <div
+        className={`${
+          show ? "show" : "hide"
+        } loading-container shadow-xl card w-96 glass`}>
+        <figure>
+          <img src={thumbnail} alt="thumbnail" className="w-full h-full" />
+        </figure>
+        <div className="card-body text-stone-900">
+          <h2 className="card-title line-clamp-2 text-ellipsis">{title}</h2>
+          <p className="line-clamp-3 text-ellipsis">{description}</p>
+          <div className="card-actions justify-center mt-2 text-xl">
+            <span>Uploading</span>
+            <span className="loading loading-xl loading-spinner"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default () => {
+  const queryClient = new QueryClient();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
+  );
+};
