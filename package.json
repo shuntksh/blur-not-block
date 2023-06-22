@@ -1,7 +1,7 @@
 {
   "name": "blur-not-block",
   "displayName": "Blur Not Block",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Blur, not block! Let's make the Internet less distractive so that we can focus on what matters.",
   "author": "Shun Takahashi",
   "manifest": {
@@ -10,10 +10,7 @@
       "storage"
     ],
     "host_permissions": [
-      "https://www.youtube.com/*",
-      "https://www.tiktok.com/*",
-      "https://www.reddit.com/*",
-      "https://twitter.com/*"
+      "https://www.youtube.com/*"
     ]
   },
   "scripts": {

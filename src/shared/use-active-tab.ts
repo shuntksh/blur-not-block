@@ -8,8 +8,10 @@ export const useActiveTabHostName = () => {
 
     // Retrieve the current active tab when the hook is first run
     chrome.tabs.query(queryInfo, (tabs) => {
-      const url = new URL(tabs[0].url);
-      setHostname(url.hostname);
+      if (tabs[0]?.url) {
+        const url = new URL(tabs[0].url);
+        setHostname(url.hostname);
+      }
     });
 
     // Listener for tab updates
