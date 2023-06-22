@@ -8,23 +8,21 @@ Let's make the Internet less interesting so that we can focus on what matters. A
 
 ## Blur Not Block - Key for productivity
 
-Blur not Block! FocusFlow makes the Internet less interesting by blurring images on your favorite social media website such as YouTube and let you defer content consumption for later. So that  we can focus on what matters most.
+Blur not Block! A Chrome extension that makes the Internet less interesting by blurring images on your favorite social media website such as YouTube and let you defer content consumption for later. So that  we can focus on what matters most.
 
 <p align="center">
   <img width="640" src="doc/grayscale.gif">
 </p>
 
-The extension will convert the images on the page to grayscale and blur them. So that web site such as YouTube is less interesting and you can easily nudge your attention back to work and study!
+The extension will automatically blur all the images on targeted pages and less colorful. So that web site such as YouTube is less interesting visually distracting during work and study hours. Once the image is blurred and turned into gray, you'll be surprised how much less interesting and less distractive websites are and how easy it is to nudge your attention back to what matters the most!
 
-It also help you differ the media consumption for later. You can set a timer for the website to be unblocked. So that you can focus on what matters most.
+It also help you deffer the media consumption by adding to watch playlist. So that you can come back to the contents during breaks.
 
 ![Deffer video consumption](doc/deffer.png)
 
-Video differed for later can be watched on the built-in player. The player is designed to be minimal and distraction-free. It also has a built-in timer to help you manage your time.
+Contents in the list for later consumption can be watched on the built-in player. The player is designed to be minimal and distraction-free. It also has a built-in timer to help you manage your time.
 
 ![Watch with builtin player](doc/player.png)
-
-Once the image is blurred and turned into gray, you'll be surprised how much less interesting and less distractive websites are.
 
 ## About the LLM model usage
 
