@@ -1,5 +1,11 @@
 # Blur-Not-Block
 
+## 0.0.10
+
+### Patch Changes
+
+- e4c5fd4: Fix bug where BGSW may be unloaded from memory that cause cache insync"
+
 ## 0.0.6
 
 ### Patch Changes
