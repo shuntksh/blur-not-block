@@ -1,4 +1,4 @@
-# Blur Not Block (Chrome Extension)
+# Blur-Not-Block (Chrome Extension)
 
 Let's make the Internet less interesting so that we can focus on what matters. A simple browser extension that helps you defer your urge to open distracting websites such as YouTube.
 
@@ -6,7 +6,7 @@ Let's make the Internet less interesting so that we can focus on what matters. A
   <img width="300" height="300" src="assets/icon.png">
 </p>
 
-## Blur Not Block - Key for productivity
+## Make Internet Less Interesting
 
 Blur not Block! A Chrome extension that makes the Internet less interesting by blurring images on your favorite social media website such as YouTube and let you defer content consumption for later. So that  we can focus on what matters most.
 
