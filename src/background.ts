@@ -63,7 +63,7 @@ class VideoList {
   #byDates: { [key: string]: string } = {};
   constructor() {}
 
-  async init() {
+  async loadData() {
     // Load from local storage
     console.log("initializing");
     const data = await chrome.storage.local.get(LIST_STORAGE_KEY);
@@ -74,6 +74,7 @@ class VideoList {
   async add(video: WatchLater) {
     console.log("adding", video);
     video = WatchLaterSchema.parse(video);
+    await this.loadData();
 
     this.#cache[video.url] = video;
     this.#keys.unshift(video.url);
@@ -170,7 +171,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 const main = async () => {
-  await videoList.init();
+  await videoList.loadData();
   const config = await chrome.storage.sync.get([CONFIG_STORAGE_KEY]);
   if (!config[CONFIG_STORAGE_KEY]) {
     await chrome.storage.sync.set({ [CONFIG_STORAGE_KEY]: defaultConfig });
