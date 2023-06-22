@@ -1,8 +1,8 @@
 {
   "name": "focusflow",
   "displayName": "Focusflow",
-  "version": "0.0.6",
-  "description": "Your digital ally for undistracted productivity, empowering you to surf smarter, work better, and reclaim your focus.",
+  "version": "0.0.7",
+  "description": "Let's make the Internet less interesting so that we can focus on what matters.",
   "author": "Shun Takahashi",
   "manifest": {
     "content_security_policy": {},

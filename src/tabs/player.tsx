@@ -1,4 +1,4 @@
-import { Empty, Radio, Timeline, Tooltip } from "antd";
+import { Empty, Radio, Timeline } from "antd";
 import { useEffect, useState } from "react";
 
 import "../styles.css";
@@ -211,7 +211,7 @@ const VideoTimeline = ({
                   </div>
                 </div>
                 <div className="absolute right-0 h-full w-12 flex items-end bg-white/50 justify-center opacity-25 hover:opacity-100">
-                  <Tooltip title="Delete item">
+                  <div className="tooltip" data-tip="Delete item">
                     <button
                       className="btn btn-circle btn-sm"
                       onClick={() => deleteMutation.mutate(video)}>
@@ -233,7 +233,7 @@ const VideoTimeline = ({
                         </svg>
                       )}
                     </button>
-                  </Tooltip>
+                  </div>
                 </div>
               </div>
             </Radio>
