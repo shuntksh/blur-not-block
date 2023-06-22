@@ -1,4 +1,4 @@
-# focusflow
+# Blur-Not-Block
 
 ## 0.0.6
 

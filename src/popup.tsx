@@ -21,7 +21,7 @@ function IndexPopup() {
       <div className="h-full w-full fixed left-0 flex flex-col bg-gray-100/75">
         <div className="flex items-center justify-center w-full h-6 p-4 ">
           <h2 className="text-green-500 font-semibold text-base">
-            FocusFlow
+            Blur Not Block
           </h2>
           <span className="text-stone-400 text-xs font-semibold ml-1">
             {version}

@@ -30,4 +30,4 @@ Sometimes, we may update this policy. When we do, we'll let you know here.
 
 By using our extension, you're okay with this policy.
 
-[The FocusFlow team](https://github.com/shuntksh/focusflow)
+[The Blur-Not-Block team](https://github.com/shuntksh/blur-not-block)

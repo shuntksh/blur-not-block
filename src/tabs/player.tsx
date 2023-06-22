@@ -90,7 +90,7 @@ const IndexPage = () => {
     <div className="flex fixed top-0 left-0 h-[100vh] overflow-hidden flex-col">
       <header className="h-16 w-full flex flex-row items-center justify-between p-6 gap-2">
         <h2 className="text-green-500 font-semibold text-base">
-          FocusFlow{" "}
+          Blur Not Block{" "}
           <span className="text-gray-500/50 text-sm uppercase">Player</span>
         </h2>
         <div>
