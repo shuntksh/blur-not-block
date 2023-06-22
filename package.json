@@ -14,8 +14,9 @@
     ]
   },
   "scripts": {
+    "clean": "rimraf build",
     "dev": "plasmo dev",
-    "build": "plasmo build",
+    "build": "plasmo build && node package.cjs",
     "package": "plasmo package"
   },
   "dependencies": {
@@ -36,11 +37,13 @@
     "@types/node": "20.3.1",
     "@types/react": "18.2.13",
     "@types/react-dom": "18.2.6",
+    "archiver": "5.3.1",
     "autoprefixer": "10.4.14",
     "postcss": "^8.4.24",
     "postcss-import": "15.1.0",
     "prettier": "2.8.8",
     "prettier-plugin-tailwindcss": "0.3.0",
+    "rimraf": "5.0.1",
     "typescript": "5.1.3"
   },
   "renovate": {
