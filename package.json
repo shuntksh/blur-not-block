@@ -1,28 +1,26 @@
 {
   "name": "blur-not-block",
   "displayName": "Blur-Not-Block!",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Blur, not block! Let's make the Internet less distractive so that we can focus on what matters.",
   "author": "Shun Takahashi",
   "manifest": {
     "content_security_policy": {},
     "permissions": [
       "storage"
-    ],
-    "host_permissions": [
-      "https://www.youtube.com/*"
     ]
   },
   "scripts": {
     "clean": "rimraf build",
     "dev": "plasmo dev",
-    "build": "plasmo build && node package.cjs",
+    "build": "plasmo build && node compress.cjs",
     "package": "plasmo package"
   },
   "dependencies": {
     "@tanstack/react-query": "4.29.15",
     "antd": "5.6.2",
     "daisyui": "3.1.5",
+    "dayjs": "1.11.8",
     "plasmo": "0.76.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",

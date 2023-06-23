@@ -1,11 +1,38 @@
 import { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
 
-import { CONFIG_STORAGE_KEY, ConfigSchema, defaultConfig } from "../background";
+import { CONFIG_STORAGE_KEY, defaultConfig } from "../background";
+
+const format = "HH:mm";
+export const ConfigSchema = z.object({
+  enabled: z.boolean().default(true),
+  schedule: z
+    .object({
+      enabled: z.boolean().default(true),
+      start: z
+        .string()
+        .regex(/\d{2}:\d{2}/)
+        .default("09:00"),
+      end: z
+        .string()
+        .regex(/\d{2}:\d{2}/)
+        .default("18:00"),
+    })
+    .default({ enabled: true, start: "09:00", end: "18:00" }),
+  youtube: z
+    .object({
+      hideSecondary: z.boolean().default(true),
+      hideComments: z.boolean().default(true),
+      hideRelated: z.boolean().default(true),
+      autoPause: z.boolean().default(true),
+    })
+    .default({}),
+});
 
 const PartialConfigSchema = ConfigSchema.partial();
 export const useConfig = () => {
   const [enabled, setEnabled] = useState(false);
+  const [isOutsideSchedule, setIsOutsideSchedule] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [config, setConfig] = useState<
     z.infer<typeof ConfigSchema> | undefined
@@ -30,6 +57,23 @@ export const useConfig = () => {
     };
   }, []);
 
+  // // const start = useMemo(
+  // //   () =>
+  // //     config?.schedule?.start ? dayjs(config.schedule.start, format) : null,
+  // //   [config?.schedule?.start],
+  // // );
+  // // const end = useMemo(
+  // //   () => (config?.schedule?.end ? dayjs(config.schedule.end, format) : null),
+  // //   [config?.schedule?.end],
+  // // );
+
+  // if (config?.enabled && config?.schedule?.enabled) {
+  //   if (start && end) {
+  //     const now = dayjs();
+  //     setIsOutsideSchedule(now.isBefore(start) || now.isAfter(end));
+  //   }
+  // }
+
   const refreshConfig = useCallback(async () => {
     chrome.storage.sync.get([CONFIG_STORAGE_KEY], (result) => {
       if (!result[CONFIG_STORAGE_KEY]) {
@@ -47,11 +91,17 @@ export const useConfig = () => {
     });
   }, [config]);
 
-  const updateConfig = (partial: z.infer<typeof PartialConfigSchema>) => {
+  const updateConfig = async (partial: z.infer<typeof PartialConfigSchema>) => {
     const newConfig = ConfigSchema.parse({ ...config, ...partial });
     // Write to storage will trigger config to be updated
-    chrome.storage.sync.set({ [CONFIG_STORAGE_KEY]: newConfig });
+    await chrome.storage.sync.set({ [CONFIG_STORAGE_KEY]: newConfig });
   };
 
-  return { data: config, enabled, error, refreshConfig, updateConfig };
+  return {
+    data: config,
+    enabled,
+    error,
+    refreshConfig,
+    updateConfig,
+  };
 };

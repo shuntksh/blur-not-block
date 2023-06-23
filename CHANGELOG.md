@@ -1,5 +1,11 @@
 # Blur-Not-Block
 
+## 0.0.11
+
+### Patch Changes
+
+- Add Range setting to set a schedule
+
 ## 0.0.10
 
 ### Patch Changes

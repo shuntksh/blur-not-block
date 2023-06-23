@@ -9,24 +9,36 @@ export const CONFIG_STORAGE_KEY = "__focus_flow_config__";
 
 export const ConfigSchema = z.object({
   enabled: z.boolean().default(true),
-  youtube: z.object({
-    hideSecondary: z.boolean().default(true),
-    hideComments: z.boolean().default(true),
-    hideRelated: z.boolean().default(true),
-    autoPause: z.boolean().default(true),
-  }),
+  schedule: z
+    .object({
+      enabled: z.boolean().default(true),
+      start: z
+        .string()
+        .regex(/\d{2}:\d{2}/)
+        .default("09:00"),
+      end: z
+        .string()
+        .regex(/\d{2}:\d{2}/)
+        .default("18:00"),
+    })
+    .default({ enabled: true, start: "09:00", end: "18:00" }),
+  youtube: z
+    .object({
+      hideSecondary: z.boolean().default(true),
+      hideComments: z.boolean().default(true),
+      hideRelated: z.boolean().default(true),
+      autoPause: z.boolean().default(true),
+    })
+    .default({}),
 });
-
-export class Config {
-  #config: z.infer<typeof ConfigSchema>;
-
-  constructor(config: z.infer<typeof ConfigSchema>) {
-    this.#config = config;
-  }
-}
 
 export const defaultConfig = {
   enabled: true,
+  schedule: {
+    enabled: false,
+    start: "09:00",
+    end: "18:00",
+  },
   youtube: {
     hideSecondary: true,
     hideComments: true,
@@ -65,30 +77,25 @@ class VideoList {
 
   async loadData() {
     // Load from local storage
-    console.log("initializing");
+    console.info("initializing");
     const data = await chrome.storage.local.get(LIST_STORAGE_KEY);
     this.#updateCacheAndSortKeys(data[LIST_STORAGE_KEY]);
-    console.log(data[LIST_STORAGE_KEY], this.#keys);
+    console.info(data[LIST_STORAGE_KEY], this.#keys);
   }
 
   async add(video: WatchLater) {
-    console.log("adding", video);
+    console.info("adding", video);
     video = WatchLaterSchema.parse(video);
     await this.loadData();
-
     this.#cache[video.url] = video;
     this.#keys.unshift(video.url);
     await this.#saveCacheToDisk();
   }
 
   async delete(video: WatchLater) {
-    console.log("deleting", video);
-    try {
-      video = WatchLaterSchema.parse(video);
-    } catch (err) {
-      console.error(err);
-    }
-
+    console.info("deleting", video);
+    video = WatchLaterSchema.parse(video);
+    await this.loadData();
     delete this.#cache[video.url];
     this.#keys = this.#keys.filter((key) => key !== video.url);
     await this.#saveCacheToDisk();
@@ -101,7 +108,7 @@ class VideoList {
   }
 
   #saveCacheToDisk = async () => {
-    console.log("saving", this.#cache);
+    console.info("saving", this.#cache);
     await chrome.storage.local.set({ [LIST_STORAGE_KEY]: this.#cache });
   };
 
@@ -126,7 +133,7 @@ class VideoList {
 const videoList = new VideoList();
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log("Received message", request);
+  console.info("Received message", request);
   if (request.command === "add") {
     (async () => {
       try {
@@ -156,7 +163,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   if (request.command === "delete") {
     (async () => {
-      console.log("deleting", request.data);
+      console.info("deleting", request.data);
       try {
         const item = WatchLaterSchema.parse(request.data);
         await videoList.delete(item);
@@ -176,9 +183,9 @@ const main = async () => {
   if (!config[CONFIG_STORAGE_KEY]) {
     await chrome.storage.sync.set({ [CONFIG_STORAGE_KEY]: defaultConfig });
   }
-  console.log("Enabled", config[CONFIG_STORAGE_KEY]?.enabled);
+  console.info("Enabled", config[CONFIG_STORAGE_KEY]?.enabled);
 };
 
 main()
-  .then(() => console.log("Ready"))
+  .then(() => console.info("Ready"))
   .catch((err) => console.error(err));

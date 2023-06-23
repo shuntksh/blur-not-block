@@ -169,6 +169,7 @@ const App = () => {
   useEffect(() => {
     if (timer === 0) {
       setTimer(-1);
+      setShowModal(false);
       setAutoPause(false);
     } else if (timer > 0) {
       const token = window.setTimeout(() => {
@@ -195,12 +196,12 @@ const App = () => {
   return (
     <StrictMode>
       <div className="w-[100vw] h-[100vh] flex relative items-center justify-center bg-stone-800/90">
-        <div className="w-[500px] h-[400px] bg-stone-100 shadow-lg rounded-lg border-[8px] border-red-700 box-border">
+        <div className="w-[500px] h-[400px] card shadow-lg rounded-2xl border-4 border-red-700 bg-red-100 box-border">
           {timer === -1 ? (
-            <div className="w-full h-full relative flex overflow-hidden items-center justify-center flex-col">
+            <div className="w-full h-full relative flex rounded-xl overflow-hidden items-center justify-center flex-col">
               {submitMutation.isError && <div>Error!</div>}
               <div className="flex-1 flex items-center flex-col justify-center">
-                <div className="w-[100px] h-[100px] rounded-xl border-4 border-red-700 bg-red-600 shadow-lg flex items-center justify-center hover:scale-105 transition-transform duration-200 ease-in-out hover:-rotate-2">
+                <div className="w-[100px] h-[100px] rounded-2xl border-4 border-red-700 bg-red-600 shadow-lg flex items-center justify-center hover:scale-105 transition-transform duration-200 ease-in-out hover:-rotate-2">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -258,7 +259,7 @@ const App = () => {
                     Go Back
                   </button>
                   <button
-                    className="btn btn-lg shadow-sm relative inline-flex group items-center justify-center border-4 bg-white text-stone-500 w-[280px] border-stone-500 hover:scale-95 hover:shadow-none"
+                    className="btn btn-lg shadow-sm relative inline-flex group items-center justify-center border-4 bg-stone-100 text-stone-500 w-[280px] border-stone-500 hover:scale-95 hover:shadow-none hover:bg-stone-200"
                     onClick={handleAddToWatchLater}
                     disabled={submitMutation.isLoading}>
                     <svg
@@ -278,14 +279,14 @@ const App = () => {
                   </button>
                 </div>
               </div>
-              <div className="pb-1 flex-grow-0 flex flex-row items-end hover:text-stone-600">
+              <div className="transition-all duration-100 pb-1 flex-grow-0 flex flex-row items-end text-xl text-stone-600 hover:scale-95 mb-1">
                 <button onClick={() => setTimer(TIMEOUT)}>
                   I really need to watch this video.
                 </button>
               </div>
 
               <button
-                className="btn btn-circle btn-outline absolute top-2 right-2 shadow-sm inline-flex border-2 items-center justify-center bg-white text-stone-500 border-stone-500 hover:scale-95 hover:shadow-none hover:border-2"
+                className="btn btn-circle btn-outline absolute top-2 right-2 shadow-sm inline-flex border-2 items-center justify-center bg-white text-stone-500 border-stone-500 hover:scale-95 hover:shadow-none hover:border-2 hover:bg-white"
                 onClick={() =>
                   (window.location.href = "https://www.youtube.com/")
                 }>
@@ -306,7 +307,7 @@ const App = () => {
               {submitMutation.isSuccess && meta && <LoadingScreen {...meta} />}
             </div>
           ) : (
-            <div className="w-full h-full relative flex overflow-hidden items-center justify-center flex-col bg-red-500/25">
+            <div className="w-full h-full relative flex overflow-hidden items-center justify-center flex-col">
               <div className="flex-1 flex items-center flex-col justify-center">
                 <div className="w-[100px] h-[100px] rounded-xl border-4  border-red-700 bg-red-600 shadow-lg mb-6 flex items-center justify-center">
                   <span className="font-extrabold text-6xl text-white">
@@ -374,7 +375,7 @@ const LoadingScreen = ({
       <div
         className={`${
           show ? "show" : "hide"
-        } loading-container shadow-xl card w-96 h-96 glass flex items-center justify-center`}>
+        } loading-container shadow-xl card bg-white border-2 border-gray-300 w-96 h-96 flex items-center justify-center`}>
         <div className="card-actions justify-center mt-2 text-xl">
           <span>Uploading</span>
           <span className="loading loading-xl loading-spinner"></span>

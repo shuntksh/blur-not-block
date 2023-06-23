@@ -12,7 +12,7 @@ import { useAutoPauseVideo } from "~shared/use-auto-pause";
 import { useConfig } from "~shared/use-config";
 
 export const config: PlasmoCSConfig = {
-  matches: ["https://www.reddit.com/*", "https://www.amazon.com/*"],
+  matches: ["https://www.amazon.com/*"],
   all_frames: true,
 };
 export const createShadowRoot: PlasmoCreateShadowRoot = (shadowHost) =>
