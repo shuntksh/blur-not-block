@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
 
-import { CONFIG_STORAGE_KEY, defaultConfig } from "../background";
+export const CONFIG_STORAGE_KEY = "__focus_flow_config__";
 
 const format = "HH:mm";
 export const ConfigSchema = z.object({
@@ -28,6 +28,21 @@ export const ConfigSchema = z.object({
     })
     .default({}),
 });
+
+export const defaultConfig = {
+  enabled: true,
+  schedule: {
+    enabled: false,
+    start: "09:00",
+    end: "18:00",
+  },
+  youtube: {
+    hideSecondary: true,
+    hideComments: true,
+    hideRelated: true,
+    autoPause: true,
+  },
+} as const;
 
 const PartialConfigSchema = ConfigSchema.partial();
 export const useConfig = () => {

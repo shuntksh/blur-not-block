@@ -235,8 +235,10 @@ const IndexPopup = () => {
 
             <div className="form-control">
               <label className="label cursor-pointer">
-                <span className="label-text text-2xl font-bold pr-3">
-                  Focus Mode
+                <span
+                  className="transition-all duration-150 label-text text-4xl font-bold pr-3"
+                  style={{ filter: config?.enabled ? "blur(2px)" : "none" }}>
+                  Blur Mode
                 </span>
                 <input
                   type="checkbox"

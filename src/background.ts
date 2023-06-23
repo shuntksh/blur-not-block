@@ -1,51 +1,15 @@
 import { z } from "zod";
 
+import {
+  CONFIG_STORAGE_KEY,
+  defaultConfig,
+} from "~shared/use-config";
+
 export const sqlite = {
   db: undefined,
 };
 
 export const LIST_STORAGE_KEY = "watch-later-list";
-export const CONFIG_STORAGE_KEY = "__focus_flow_config__";
-
-export const ConfigSchema = z.object({
-  enabled: z.boolean().default(true),
-  schedule: z
-    .object({
-      enabled: z.boolean().default(true),
-      start: z
-        .string()
-        .regex(/\d{2}:\d{2}/)
-        .default("09:00"),
-      end: z
-        .string()
-        .regex(/\d{2}:\d{2}/)
-        .default("18:00"),
-    })
-    .default({ enabled: true, start: "09:00", end: "18:00" }),
-  youtube: z
-    .object({
-      hideSecondary: z.boolean().default(true),
-      hideComments: z.boolean().default(true),
-      hideRelated: z.boolean().default(true),
-      autoPause: z.boolean().default(true),
-    })
-    .default({}),
-});
-
-export const defaultConfig = {
-  enabled: true,
-  schedule: {
-    enabled: false,
-    start: "09:00",
-    end: "18:00",
-  },
-  youtube: {
-    hideSecondary: true,
-    hideComments: true,
-    hideRelated: true,
-    autoPause: true,
-  },
-} as const;
 
 export const WatchLaterSchema = z.object({
   url: z.string().url(),

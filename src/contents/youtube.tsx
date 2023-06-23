@@ -44,13 +44,13 @@ type Meta = {
   thumbnailUrl: string;
 };
 
-function extractVideoID(url: string): string | null {
+const extractVideoID = (url: string): string | null => {
   const regex = /(?:v=)([\w-]+)/;
   const match = url.match(regex);
   return match ? match[1] : null;
-}
+};
 
-function extractVideoMetadata(): Meta {
+const extractVideoMetadata = (): Meta => {
   const title =
     document.querySelector("meta[name='title']")?.getAttribute("content") ||
     window.document.title;
@@ -79,7 +79,7 @@ function extractVideoMetadata(): Meta {
     channelUrl,
     thumbnailUrl: `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`,
   };
-}
+};
 
 const App = () => {
   const [showModal, setShowModal] = useState(false); // [true, false]
@@ -385,12 +385,9 @@ const LoadingScreen = ({
   );
 };
 
-export default () => {
-  const queryClient = new QueryClient();
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>
-  );
-};
+const c = new QueryClient();
+export default () => (
+  <QueryClientProvider client={c}>
+    <App />
+  </QueryClientProvider>
+);
