@@ -21,7 +21,3 @@ It also help you deffer the media consumption by adding to watch playlist. So th
 ![Deffer video consumption](doc/deffer.png)
 
 Contents in the list for later consumption can be watched on the built-in player. The player is designed to be minimal and distraction-free. It also has a built-in timer to help you manage your time.
-
-## About the LLM model usage
-
-The name and the prompt for creating the logo image is generated using GPT4. See the [chat](https://chat.openai.com/share/6a8647a4-420d-4610-9bb1-c98eb1a78fd0) for the history.
