@@ -19,7 +19,7 @@
   "dependencies": {
     "@tanstack/react-query": "4.29.15",
     "antd": "5.6.2",
-    "daisyui": "3.1.5",
+    "daisyui": "3.1.6",
     "dayjs": "1.11.8",
     "plasmo": "0.76.3",
     "react": "18.2.0",
