@@ -3,9 +3,8 @@ import { useEffect, useState } from "react";
 import "./styles.css";
 import "./popup.css";
 
-import { TimePicker, Tooltip } from "antd";
+import { TimePicker } from "antd";
 import dayjs from "dayjs";
-import { set } from "zod";
 
 import { useConfig } from "~shared/use-config";
 
