@@ -2,7 +2,6 @@ import {
   QueryClient,
   QueryClientProvider,
   useMutation,
-  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import cssText from "data-text:~styles.css";
@@ -122,7 +121,6 @@ const App = () => {
         console.log("Is YouTube Top Page");
         document.body.style.overflow = "auto";
         setShowModal(false);
-        setAutoPause(config.enabled);
         setVideoPage(config.enabled);
         setGrayscale(config.enabled);
       }
