@@ -1,7 +1,7 @@
 {
   "name": "blur-not-block",
   "displayName": "Blur-Not-Block!",
-  "version": "0.0.11",
+  "version": "0.0.2",
   "description": "Blur, not block! Let's make the Internet less distractive so that we can focus on what matters.",
   "author": "Shun Takahashi",
   "manifest": {
