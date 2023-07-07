@@ -1,8 +1,8 @@
 {
-  "name": "blur-and-block",
+  "name": "blur-and-delay",
   "displayName": "Site Blur - Blur, Block and Enjoy",
   "version": "0.0.2",
-  "description": "Make your web browsing experience less distractive to your eye by blurring images and videos. And ",
+  "description": "Better than site blockers. It blur sites and delay access.",
   "author": "Shun Takahashi",
   "manifest": {
     "content_security_policy": {},

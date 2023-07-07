@@ -5,7 +5,8 @@
     ".plasmo/index.d.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx",
-    "vitest.setup.ts"
+    "vitest.setup.mts",
+    "vitest.config.mts"
   ],
   "compilerOptions": {
     "target": "ESNext",
