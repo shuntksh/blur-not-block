@@ -71,7 +71,7 @@ const bufferToHex = (buffer: ArrayBuffer) =>
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
 
-const hashPassphrase = async (passphrase: string) => {
+export const hashPassphrase = async (passphrase: string) => {
   const buffer = await crypto.subtle.digest(
     "SHA-256",
     stringToArrayBuffer(passphrase),
@@ -174,3 +174,4 @@ export const useConfig = () => {
     },
   };
 };
+ 

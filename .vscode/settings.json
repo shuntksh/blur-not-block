@@ -1,4 +1,11 @@
 {
   "git.ignoreLimitWarning": true,
-  "cSpell.words": ["daisyui", "plasmo", "plasmohq", "tailwindcss"]
+  "cSpell.words": [
+    "antd",
+    "daisyui",
+    "plasmo",
+    "plasmohq",
+    "tailwindcss",
+    "tanstack"
+  ]
 }

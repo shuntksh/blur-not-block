@@ -1,8 +1,16 @@
 {
   "extends": "plasmo/templates/tsconfig.base",
   "exclude": ["node_modules"],
-  "include": [".plasmo/index.d.ts", "./src/**/*.ts", "./src/**/*.tsx"],
+  "include": [
+    ".plasmo/index.d.ts",
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "vitest.setup.ts"
+  ],
   "compilerOptions": {
+    "target": "ESNext",
+    "noEmit": true,
+    "skipLibCheck": true,
     "paths": {
       "~*": ["./src/*"]
     },
