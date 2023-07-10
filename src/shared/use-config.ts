@@ -81,8 +81,6 @@ export const hashPassphrase = async (passphrase: string) => {
 
 const PartialConfigSchema = ConfigSchema.partial();
 export const useConfig = () => {
-  const [enabled, setEnabled] = useState(false);
-  const [isOutsideSchedule, setIsOutsideSchedule] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [config, setConfig] = useState<
     z.infer<typeof ConfigSchema> | undefined
@@ -97,7 +95,6 @@ export const useConfig = () => {
         return;
       }
       setConfig(ConfigSchema.parse(config.newValue));
-      setEnabled(config.newValue.enabled);
     };
 
     chrome.storage.sync.onChanged.addListener(changeListener);
@@ -117,7 +114,6 @@ export const useConfig = () => {
       try {
         const config = ConfigSchema.parse(result[CONFIG_STORAGE_KEY]);
         setConfig(config);
-        setEnabled(config.enabled);
       } catch (err) {
         setError(err);
       }
@@ -162,7 +158,6 @@ export const useConfig = () => {
 
   return {
     data: config,
-    enabled,
     error,
     isWithinSchedule,
     refreshConfig,
@@ -174,4 +169,3 @@ export const useConfig = () => {
     },
   };
 };
- 
